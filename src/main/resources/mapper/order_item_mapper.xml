@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="alpha.gewei_alp_week1_spring.excercise3.dao.OrderItemMapper">
+    <resultMap id="orderItemResultMap" type="alpha.gewei_alp_week1_spring.excercise3.model.Orderitem">
+        <id column="item_id" property="itemId" jdbcType="INTEGER"></id>
+<!--        <result column="order_id" property="orderId" jdbcType="INTEGER"/>-->
+        <result column="item_price" property="itemPrice" jdbcType="INTEGER"></result>
+        <result column="quantity" property="quantity" jdbcType="INTEGER" />
+        <result column="subtotal" property="subtotal" jdbcType="INTEGER" />
+        <association column="product_id" property="product"
+            select="alpha.gewei_alp_week1_spring.excercise3.dao.ProductMapper.selectProductById"></association>
+    </resultMap>
+    <select id="getItemByOrderId" resultMap="orderItemResultMap">
+        select i.item_id , i.item_price , i.quantity , i.subtotal
+             ,p.product_id , p.product_name , p.product_info ,p.instock , p.price ,p.available ,p.unit
+        from orderitem i  join product p on i.product_id = p.product_id
+        where order_id = #{orderId}
+    </select>
+
+    <insert id="insertBatchItem" useGeneratedKeys="true"
+                keyProperty="itemId" parameterType="java.util.List"
+    >
+        insert into orderItem(order_id,product_id,item_price,quantity,subtotal) values
+            <foreach collection="list" separator="," item="item">
+                (#{item.orderId},#{item.productId}
+                ,#{item.itemPrice},#{item.quantity},#{item.subtotal})
+            </foreach>
+    </insert>
+
+    <!--for item batch update  -->
+    <update id="updateItemAAndQBatch" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="goods">
+            UPDATE orderItem
+            SET  item_price = #{goods.itemPrice} , quantity = #{goods.quantity} , subtotal =#{goods.subtotal}
+            where item_id = #{goods.itemId}
+        </foreach>
+    </update>
+
+    <delete id="deleteItemByOrderId" parameterType="java.lang.Integer">
+        delete from orderItem
+        where order_id = #{orderId}
+    </delete>
+
+    <!-- for update quantity and price-->
+    <delete id="deleteItemByItemId" parameterType="alpha.gewei_alp_week1_spring.excercise3.model.Orderitem">
+        delete from orderItem
+        where item_id = #{itemId}
+    </delete>
+
+    <update id="updateItemPAndQ" parameterType="alpha.gewei_alp_week1_spring.excercise3.model.Orderitem">
+        update orderItem
+        set item_price = #{itemPrice} , quantity = #{quantity} , subtotal =#{subtotal}
+        where item_id = #{itemId}
+    </update>
+
+    <select id="selectItemByItemId" resultMap="orderItemResultMap">
+        select * from orderitem
+        where item_id = #{orderId}
+    </select>
+
+    <select id="selectOrderIdByItem" resultType="java.lang.Integer">
+        select order_id
+        from orderitem
+        where item_id = #{itemId}
+    </select>
+
+
+</mapper>

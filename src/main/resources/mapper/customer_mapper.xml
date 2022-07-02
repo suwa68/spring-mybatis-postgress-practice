@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="alpha.gewei_alp_week1_spring.excercise3.dao.CustomerMapper">
+    <resultMap id="BaseResultMap" type="alpha.gewei_alp_week1_spring.excercise3.model.Customer">
+        <id column="customer_id" property="id" jdbcType="INTEGER"></id>
+        <result column="pwd" property="pwd" jdbcType="VARCHAR"></result>
+        <result column="customer_name" property="name" jdbcType="VARCHAR"></result>
+        <result column="phone_number" property="phoneNumber" jdbcType="TIMESTAMP"></result>
+        <result column="signin_date" property="sigininDate" jdbcType="DATE"></result>
+    </resultMap>
+
+
+
+    <select id="getCustomerById" resultMap="BaseResultMap"
+            resultType="alpha.gewei_alp_week1_spring.excercise3.model.Customer">
+        select *
+        from customer
+        where customer_id = #{id}
+    </select>
+
+
+
+</mapper>

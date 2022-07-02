@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="alpha.gewei_alp_week1_spring.excercise3.dao.OrderMapper">
+    <resultMap id="OrderResultMap" type="alpha.gewei_alp_week1_spring.excercise3.model.Order">
+        <id column="order_id" property="orderId"></id>
+        <result property="orderStatus" column="order_status" jdbcType="VARCHAR"></result>
+        <result property="address" column="address" jdbcType="VARCHAR"></result>
+        <result property="receiver" column="receiver" jdbcType="VARCHAR"></result>
+        <result property="tel" column="tel" jdbcType="VARCHAR"></result>
+        <result property="totalPrice" column="total_price" jdbcType="INTEGER"></result>
+        <result property="createdDate" column="created_date" jdbcType="DATE" javaType="java.util.Date"></result>
+        <result property="updatedDate" column="updated_date" jdbcType="DATE" javaType="java.util.Date"></result>
+        <association property="customer" column="customer_id"
+                    select="alpha.gewei_alp_week1_spring.excercise3.dao.CustomerMapper.getCustomerById" fetchType="eager"/>
+        <association property="payment" column="payment"
+                    select="alpha.gewei_alp_week1_spring.excercise3.dao.PaymentMapper.getPaymentById"/>
+        <collection property="items"
+                    column="order_id"
+                    select="alpha.gewei_alp_week1_spring.excercise3.dao.OrderItemMapper.getItemByOrderId"
+                    ofType="alpha.gewei_alp_week1_spring.excercise3.model.Orderitem"></collection>
+    </resultMap>
+    <select id="selectOrderById" resultMap="OrderResultMap" >
+        select * from "grant"."order"
+        where order_id = #{oid}
+    </select>
+
+    <insert id="insertOrder" useGeneratedKeys="true" keyProperty="orderId" parameterType="alpha.gewei_alp_week1_spring.excercise3.model.Order">
+        insert into "grant"."order"(customer_id, payment, order_status, address, receiver, tel, total_price)
+        values(#{customerId},#{paymentId},#{orderStatus},#{address},#{receiver},#{tel},#{totalPrice})
+    </insert>
+
+    <delete id="deleteOrderById" parameterType="java.lang.Integer">
+        delete from "grant"."order" o
+        where o.order_id =#{orderId}
+    </delete>
+
+    <!--update section -->
+    <update id="updateOrderStatus" >
+        update "grant"."order"
+        set order_status = #{newOrderStatus} , updated_date = now()
+        where order_id = #{thisorderId}
+    </update>
+
+    <update id="updateOrderReceiverData" parameterType="alpha.gewei_alp_week1_spring.excercise3.model.Order">
+        update "grant"."order"
+        set address = #{address} , receiver =#{receiver} ,tel = #{tel} ,updated_date = now()
+        where order_id = #{orderId}
+    </update>
+    <!-- way 2-->
+<!--    <update id="updateOrderReceiverData" parameterType="alpha.gewei_alp_week1_spring.excercise3.model.Order">-->
+<!--        update "grant"."order"-->
+<!--        set address = #{newAddress} , receiver =#{newReceiver} ,tel = #{newTel}-->
+<!--        where order_id = #{thisorderId}-->
+<!--    </update>-->
+
+    <!-- updatePriceSection -->
+    <update id="updateTotalPrice">
+        update "grant"."order"
+        set total_price = #{totalPrice} ,updated_date = now()
+        where order_id = #{orderId}
+    </update>
+
+    <!--for batch udpate order total price -->
+    <update id="batchUpdateOrderPrice" parameterType="java.util.Map">
+        <foreach collection="list" separator=";" item="order">
+            update "grant"."order"
+            set total_price = #{order.totalPrice} ,updated_date = now()
+            where order_id = #{order.orderId}
+        </foreach>
+    </update>
+
+    <!-- select by date -->
+    <select id="selectOrderByBeginAndEnd" resultMap="OrderResultMap" >
+        SELECT *
+        FROM "grant"."order"
+        WHERE created_date &gt;= #{startDate}::date
+              AND created_date &lt;= #{endDate}::date
+        ORDER BY order_id DESC
+    </select>
+</mapper>
